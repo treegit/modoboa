@@ -9,7 +9,8 @@ from django.conf.urls import url
 from . import views
 from .views import (
     alias as alias_views, domain as domain_views, export as export_views,
-    identity as identity_views, import_ as import_views
+    identity as identity_views, import_ as import_views,
+    outboundrelay as outboundrelay_views
 )
 
 urlpatterns = [
@@ -33,6 +34,10 @@ urlpatterns = [
         name="domain_delete"),
     url(r'^domains/page/$', domain_views.get_next_page,
         name="domain_page"),
+]
+
+urlpatterns += [
+    url(r'^outboundrelays/$', outboundrelay_views.outboundrelays, name="outboundrelay_list"),
 ]
 
 urlpatterns += [

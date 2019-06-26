@@ -274,6 +274,12 @@ def admin_menu(sender, location, user, **kwargs):
              "url": reverse("admin:identity_list"),
              "label": _("Identities")},
         ]
+    if user.has_perm("admin.view_outboundrelays"):
+        entries += [
+            {"name": "outboundrelays",
+             "url": reverse("admin:outboundrelay_list"),
+             "label": _("Outbound Relays")}
+        ]
     return entries
 
 

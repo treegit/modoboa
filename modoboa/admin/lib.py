@@ -25,7 +25,7 @@ from modoboa.lib.exceptions import PermDeniedException
 from modoboa.parameters import tools as param_tools
 
 from . import signals
-from .models import Alias, Domain, DomainAlias
+from .models import Alias, Domain, DomainAlias, OutboundRelay
 
 
 def needs_mailbox():
@@ -124,6 +124,31 @@ def check_if_domain_exists(name, dtypes):
         if dtype.objects.filter(name=name).exists():
             return label
     return None
+
+
+def get_outboundrelays(user, relayfilter=None, searchquery=None, **extrafilters):
+    """Return all the domains the user can access.
+
+    :param ``User`` user: user object
+    :param str searchquery: filter
+    :rtype: list
+    :return: a list of domains and/or relay domains
+    """
+    relays = (
+        OutboundRelay.objects.get_for_admin(user))
+    if relayfilter:
+        relays = relays.filter(type=relayfilter)
+    if searchquery is not None:
+        q = Q(name__contains=searchquery)
+        relays = relays.filter(q).distinct()
+    # results = signals.extra_relay_qset_filters.send(
+    #     sender="get_outboundrelays", relayfilter=relayfilter, extrafilters=extrafilters)
+    if results:
+        qset_filters = {}
+        for result in results:
+            qset_filters.update(result[1])
+        relays = relays.filter(**qset_filters)
+    return relays
 
 
 def import_domain(user, row, formopts):

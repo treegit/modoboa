@@ -16,3 +16,4 @@ modoboa_test
 .coverage
 build/
 dist/
+instance

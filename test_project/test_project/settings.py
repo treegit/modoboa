@@ -70,7 +70,7 @@ MODOBOA_APPS = (
     "modoboa.limits",
     "modoboa.parameters",
     "modoboa.dnstools",
-    "modoboa.ldapsync",
+    # "modoboa.ldapsync",
     # Modoboa extensions here.
 )
 

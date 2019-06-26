@@ -76,6 +76,8 @@ PERMISSIONS = {
         ["admin", "senderaddress", "add_senderaddress"],
         ["admin", "senderaddress", "change_senderaddress"],
         ["admin", "senderaddress", "delete_senderaddress"],
+        ["admin", "outboundrelay", "view_outboundrelays"],
+        ["admin", "outboundrelay", "view_outboundrelay"],
     ],
     "Resellers": [
         ["core", "user", "add_user"],

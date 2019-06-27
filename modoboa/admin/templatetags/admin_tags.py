@@ -131,6 +131,99 @@ def identities_menu(user, selection=None, ajax_mode=True):
 
 
 @register.simple_tag
+def outboundrelays_menu(selection, user, ajax_mode=True):
+    """Specific menu for outbound relay related operations.
+
+    Corresponds to the menu visible on the left column when you go to
+    *Outbound Relays*.
+
+    :param str selection: menu entry currently selected
+    :param ``User`` user: connected user
+    :rtype: str
+    :return: rendered menu (as HTML)
+    """
+    nav_classes = "navigation"
+    if ajax_mode:
+        outboundrelay_list_url = "list/"
+        quota_list_url = "quotas/"
+        nav_classes += " ajaxnav"
+    else:
+        domain_list_url = reverse("admin:outboundrelay_list")
+        quota_list_url = domain_list_url + "#quotas/"
+    entries = [
+        {"name": "outboundrelays",
+         "label": _("List outbound relays"),
+         "img": "fa fa-user",
+         "class": "ajaxnav navigation",
+         "url": outboundrelay_list_url},
+        {"name": "quotas",
+         "label": _("List quotas"),
+         "img": "fa fa-hdd-o",
+         "class": "ajaxnav navigation",
+         "url": quota_list_url},
+    ]
+    if user.has_perm("admin.add_outboundrelay"):
+        extra_entries = signals.extra_domain_menu_entries.send(
+            sender="outboundrelays_menu", user=user)
+        for entry in extra_entries:
+            entries += entry[1]
+        entries += [
+            {"name": "import",
+             "label": _("Import"),
+             "img": "fa fa-folder-open",
+             "url": reverse("admin:domain_import"),
+             "modal": True,
+             "modalcb": "admin.importform_cb"},
+            {"name": "export",
+             "label": _("Export"),
+             "img": "fa fa-share-alt",
+             "url": reverse("admin:domain_export"),
+             "modal": True,
+             "modalcb": "admin.exportform_cb"}
+        ]
+
+    return render_to_string("common/menulist.html", {
+        "entries": entries,
+        "selection": selection,
+        "user": user
+    })
+
+
+def outboundrelay_actions(user, relay):
+    actions = [
+        {"name": "listidentities",
+         "url": u"{0}#list/?searchquery=@{1}".format(
+             reverse("admin:identity_list"), relay.name),
+         "title": _("View the domain's identities"),
+         "img": "fa fa-user"}
+    ]
+    if user.has_perm("admin.change_outboundrelay"):
+        actions.append({
+            "name": "editoutboundrelay",
+            "title": _("Edit {}").format(relay),
+            "url": reverse("admin:outboundrelay_change", args=[relay.pk]),
+            "modal": True,
+            "modalcb": "admin.outboundrelayform_cb",
+            "img": "fa fa-edit"
+        })
+    if user.has_perm("admin.delete_outboundrelay"):
+        actions.append({
+            "name": "deloutboundrelay",
+            "url": reverse("admin:outboundrelay_delete", args=[relay.id]),
+            "title": _("Delete %s?") % relay.name,
+            "img": "fa fa-trash"
+        })
+
+    responses = signals.extra_outboundrelay_actions.send(
+        sender=None, user=user, relay=relay)
+    for _receiver, response in responses:
+        if response:
+            actions += response
+
+    return render_actions(actions)
+
+
+@register.simple_tag
 def domain_actions(user, domain):
     actions = [
         {"name": "listidentities",

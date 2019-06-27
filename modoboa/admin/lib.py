@@ -141,14 +141,27 @@ def get_outboundrelays(user, relayfilter=None, searchquery=None, **extrafilters)
     if searchquery is not None:
         q = Q(name__contains=searchquery)
         relays = relays.filter(q).distinct()
-    # results = signals.extra_relay_qset_filters.send(
-    #     sender="get_outboundrelays", relayfilter=relayfilter, extrafilters=extrafilters)
+    results = signals.extra_outboundrelay_qset_filters.send(
+        sender="get_outboundrelays", relayfilter=relayfilter, extrafilters=extrafilters)
     if results:
         qset_filters = {}
         for result in results:
             qset_filters.update(result[1])
         relays = relays.filter(**qset_filters)
     return relays
+
+
+def check_if_outboundrelay_exists(name, dtypes):
+    """Check if a domain already exists.
+
+    We not only look for domains, we also look for every object that
+    could conflict with a domain (domain alias, etc.)
+
+    """
+    for dtype, label in dtypes:
+        if dtype.objects.filter(name=name).exists():
+            return label
+    return None
 
 
 def import_domain(user, row, formopts):

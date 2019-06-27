@@ -38,6 +38,8 @@ urlpatterns = [
 
 urlpatterns += [
     url(r'^outboundrelays/$', outboundrelay_views.outboundrelays, name="outboundrelay_list"),
+    url(r'^outboundrelays/list/$', outboundrelay_views._outboundrelays, name="_outboundrelay_list"),
+    url(r'^outboundrelays/new/', outboundrelay_views.newoutboundrelay, name="outboundrelay_add"),
 ]
 
 urlpatterns += [

@@ -103,5 +103,9 @@ PERMISSIONS = {
         ["admin", "domainalias", "add_domainalias"],
         ["admin", "domainalias", "change_domainalias"],
         ["admin", "domainalias", "delete_domainalias"],
+        ["admin", "outboundrelay", "view_outboundrelays"],
+        ["admin", "outboundrelay", "add_outboundrelay"],
+        ["admin", "outboundrelay", "change_outboundrelay"],
+        ["admin", "outboundrelay", "delete_outboundrelay"],
     ]
 }

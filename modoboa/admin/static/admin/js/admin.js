@@ -217,7 +217,7 @@ Domains.prototype = {
      * A new page has been received, inject it.
      *
      * @param {Object} data - page content
-     * @param {string} direction - 
+     * @param {string} direction -
      */
     add_new_page: function(data, direction) {
         Admin.prototype.add_new_page.call(this, data, direction);
@@ -439,7 +439,7 @@ Identities.prototype = {
      * A new page has been received, inject it.
      *
      * @param {Object} data - page content
-     * @param {string} direction - 
+     * @param {string} direction -
      */
     add_new_page: function(data, direction) {
         Admin.prototype.add_new_page.call(this, data, direction);
@@ -719,3 +719,216 @@ Identities.prototype = {
 };
 
 Identities.prototype = $.extend({}, Admin.prototype, Identities.prototype);
+
+/**
+ * Creates an instance of OutboundRelay.
+ *
+ * @constructor
+ * @param {Object} options - instance options
+ * @classdesc This class extends the Admin one by adding methods
+ * specific to domains management.
+ */
+var OutboundRelays = function(options) {
+    Admin.call(this, options);
+};
+
+OutboundRelays.prototype = {
+    initialize: function(options) {
+        Admin.prototype.initialize.call(this, options);
+        this.options.navigation_params.push("relayfilter", "srvfilter");
+        this.options.eor_message = gettext("No more relays to show");
+        this.register_tag_handler("relay");
+        this.register_tag_handler("srv", this.srv_tag_handler);
+    },
+
+    /**
+     * Custom callbacks declaration.
+     */
+    listen: function() {
+        Admin.prototype.listen.call(this);
+        $(document).on("click", "a.ajaxnav", $.proxy(this.page_loader, this));
+    },
+
+    /**
+     * Initialize the domain links embedded within a page.
+     *
+     * @param {Object} data - options
+     */
+    init_outboundrelay_links: function(data) {
+        var deloptions = (data.handle_mailboxes) ?
+            {keepdir: gettext("Do not delete outbound relay directory")} : {};
+        var warnmsg = (data.auto_account_removal && data.auto_account_removal === "yes")
+            ? gettext("This operation will remove ALL data associated to this outbound relay.")
+            : gettext("This operation will remove all data associated to this outbound relay, excepting accounts.");
+
+        $("a[name=delrelay]").confirm({
+            question: function() { return this.$element.attr('title'); },
+            method: "POST",
+            warning: warnmsg,
+            checkboxes: deloptions,
+            success_cb: $.proxy(this.reload_listing, this)
+        });
+        $(document).trigger('outboundrelay_listing_refresh');
+    },
+
+    /**
+     * Add a type to let the server know what kind of object we expect.
+     *
+     * @this Listing
+     */
+    get_load_page_args: function() {
+        var args = Admin.prototype.get_load_page_args.call(this);
+
+        if (this.navobj.getbaseurl() === "list") {
+            args.objtype = "outboundrelay";
+            this.options.eor_message = gettext("No more relays to show");
+        } else {
+            args.objtype = "quota";
+            this.options.eor_message = gettext("No more quota to show");
+        }
+        return args;
+    },
+
+    /**
+     * Navigation callback: default.
+     *
+     * @param {Object} data - response of the ajax call (JSON)
+     */
+    list_cb: function(data) {
+        if ($(".sidebar li.active").length === 0) {
+            var menu = this.navobj.getbaseurl();
+            if (menu === "list") {
+                menu = "outboundrelays";
+            }
+            $("a[name={0}]".format(menu)).parent().addClass("active");
+        }
+        $("#objects_table thead tr").html(data.headers);
+        Admin.prototype.list_cb.call(this, data);
+        this.init_outboundrelay_links(data);
+    },
+
+    srv_tag_handler: function(tag, $link) {
+        if (this.navobj.getparam(tag + "filter") === undefined && $link.hasClass(tag)) {
+            var text = $link.attr("name");
+            this.navobj
+                .setparam("relayfilter")
+                .setparam(tag + "filter", text)
+                .update();
+            if ($("a[name=relay]").length === 0) {
+                $("#taglist").append(this.make_tag("relaydomain", "relay"));
+            }
+            $("#taglist").append(this.make_tag(text, tag));
+            return true;
+        }
+        return false;
+    },
+
+    /**
+     * A new page has been received, inject it.
+     *
+     * @param {Object} data - page content
+     * @param {string} direction -
+     */
+    add_new_page: function(data, direction) {
+        Admin.prototype.add_new_page.call(this, data, direction);
+        this.init_outboundrelay_links(data);
+    },
+
+    change_inputs_state: function(value) {
+        $("#id_relay_admin_username").attr("disabled", value);
+        $("input[name=with_mailbox]").attr("disabled", value);
+        $("input[name=create_aliases]").attr("disabled", value);
+    },
+
+    create_relay_admin_changed: function(e) {
+        var $target = $(e.target);
+        this.change_inputs_state(($target.val() === "True") ? false : true);
+    },
+
+    withMailboxChanged: function(e) {
+        var $target = $(e.target);
+        $("input[name=create_aliases]").attr(
+            "disabled", $target.val() === "False");
+    },
+
+    /**
+     * Hide or show password inputs depending on value.
+     *
+     * @param {bool} value - visibility flag
+     */
+    toggleDKIMFields: function (value) {
+        if (value) {
+            $('#id_dkim_key_selector').parents(".form-group").show();
+            $('#id_dkim_key_length').parents(".form-group").show();
+        } else {
+            $('#id_dkim_key_selector').parents(".form-group").hide();
+            $('#id_dkim_key_length').parents(".form-group").hide();
+        }
+    },
+
+    /**
+     * Initialize the main form contained in the domain edition modal.
+     *
+     * @this Domains
+     */
+    generalform_init: function() {
+        $('input:text:visible:first').focus();
+        $("#original_aliases").dynamic_input({
+            input_added: function($row) {
+                $row.find("label").html("");
+            },
+            input_removed: function($input) {
+                $input.parents(".form-group").remove();
+                return true;
+            }
+        });
+    },
+
+    domadminsform_init: function() {
+        $("a[name=removeperm]").click(function(e) {
+            var $tr = $(this).parents('tr');
+            simple_ajax_request.apply(this, [e, {
+                ok_cb: function(resp) {
+                    $tr.remove();
+                    if (!$("#domadmins").find("tr").length) {
+                        $("#admins").html('<div class="alert alert-info">'
+                            + gettext("No domain administrator defined") + "</div>");
+                    }
+                }
+            }]);
+        });
+    },
+
+    newoutboundrelay_cb: function() {
+        this.generalform_init();
+        this.optionsform_init();
+        $("#wizard").cwizard({
+            formid: "domform",
+            transition_callbacks: {
+                "options": this.optionsform_prefill
+            },
+            error_callbacks: {
+                "options": $.proxy(this.optionsform_init, this)
+            },
+            success_callback: $.proxy(this.reload_listing, this)
+        });
+        $(document).trigger('domwizard_init');
+    },
+
+    outboundrelayform_cb: function() {
+        this.generalform_init();
+        this.domadminsform_init();
+        $(".submit").one('click', $.proxy(function(e) {
+            simple_ajax_form_post(e, {
+                formid: "domform",
+                error_cb: $.proxy(this.domainform_cb, this),
+                reload_on_success: false,
+                success_cb: $.proxy(this.reload_listing, this)
+            });
+        }, this));
+        $(document).trigger('domform_init');
+    }
+};
+
+OutboundRelays.prototype = $.extend({}, Admin.prototype, OutboundRelays.prototype);
+

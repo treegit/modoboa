@@ -1,0 +1,10 @@
+{% load i18n admin_tags lib_tags %}
+
+{% for relay in relays %}
+<tr id="{{ relay.id }}" class="{% if not relay.enabled %}text-muted{% endif %}" name="{{ forloop.counter }}">
+  <td name="name"><a href="{% url 'admin:outboundrelay_detail' relay.id %}">{{ relay }}</a>{% if not relay.enabled %} ({% trans "disabled" %}){% endif %}</td>
+  <td name="username">{% relay.username %} </td>
+  <td name="host">{% relay.relayhost %}</td>
+  <td name="actions">{% outboundrelay_actions user relay %}</td>
+</tr>
+{% endfor %}

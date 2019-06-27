@@ -45,7 +45,6 @@ def render_field(
         **options):
     """Render a field."""
     from modoboa.core.templatetags.core_tags import visirule
-
     if isinstance(field.field, SeparatorField):
         return "<h5%s>%s</h5>" % (visirule(field), smart_text(field.label))
     configure_field_classes(field)

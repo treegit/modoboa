@@ -166,13 +166,13 @@ def outboundrelays_menu(selection, user, ajax_mode=True):
             {"name": "import",
              "label": _("Import"),
              "img": "fa fa-folder-open",
-             "url": reverse("admin:domain_import"),
+             "url": reverse("admin:outboundrelay_import"),
              "modal": True,
              "modalcb": "admin.importform_cb"},
             {"name": "export",
              "label": _("Export"),
              "img": "fa fa-share-alt",
-             "url": reverse("admin:domain_export"),
+             "url": reverse("admin:outboundrelay_export"),
              "modal": True,
              "modalcb": "admin.exportform_cb"}
         ]

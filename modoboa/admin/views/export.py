@@ -93,3 +93,30 @@ def export_domains(request):
 
     ctx["form"] = ExportDomainsForm()
     return render(request, "common/generic_modal_form.html", ctx)
+
+
+@login_required
+@permission_required("admin.add_outboundrelay")
+def export_outboundrelays(request):
+    ctx = {
+        "title": _("Export outbound relays"),
+        "action_label": _("Export"),
+        "action_classes": "submit",
+        "formid": "exportform",
+        "action": reverse("admin:outboundrelay_export"),
+    }
+
+    if request.method == "POST":
+        form = ExportDomainsForm(request.POST)
+        form.is_valid()
+        fp = six.StringIO()
+        csvwriter = csv.writer(fp, delimiter=form.cleaned_data["sepchar"])
+        for dom in get_domains(request.user,
+                               **request.session["domains_filters"]):
+            dom.to_csv(csvwriter)
+        content = fp.getvalue()
+        fp.close()
+        return _export(content, form.cleaned_data["filename"])
+
+    ctx["form"] = ExportDomainsForm()
+    return render(request, "common/generic_modal_form.html", ctx)

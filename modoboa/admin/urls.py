@@ -81,6 +81,8 @@ urlpatterns += [
         name="domain_import"),
     url(r'^identities/import/$', import_views.import_identities,
         name="identity_import"),
+    url(r'^outboundrelays/import/$', import_views.import_outboundrelays,
+        name="outboundrelay_import"),
 ]
 
 urlpatterns += [
@@ -88,4 +90,6 @@ urlpatterns += [
         name="domain_export"),
     url(r'^identities/export/$', export_views.export_identities,
         name="identity_export"),
+    url(r'^outboundrelays/export/$', export_views.export_outboundrelays,
+        name="outboundrelay_export"),
 ]

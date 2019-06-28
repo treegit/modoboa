@@ -103,6 +103,25 @@ def import_domains(request):
 
 
 @login_required
+@permission_required("admin.add_outboundrelay")
+def import_outboundrelays(request):
+    if request.method == "POST":
+        return importdata(request)
+
+    ctx = {
+        "title": _("Import outbound relays"),
+        "action_label": _("Import"),
+        "action_classes": "submit",
+        "action": reverse("admin:outboundrelay_import"),
+        "formid": "importform",
+        "enctype": "multipart/form-data",
+        "target": "import_target",
+        "form": ImportDataForm(),
+    }
+    return render(request, "admin/import_outboundrelays_form.html", ctx)
+
+
+@login_required
 @user_passes_test(
     lambda u: u.has_perm("core.add_user") or
     u.has_perm("admin.add_alias")

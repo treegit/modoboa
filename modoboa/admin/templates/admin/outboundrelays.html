@@ -14,8 +14,8 @@
   <script src="{% static 'transport/js/transport.js' %}" type="text/javascript"></script>
   <script type="text/javascript">
    $(document).ready(function() {
-       admin = new Domains({
-           load_page_url: "{% url 'admin:domain_page' %}"
+       admin = new OutboundRelays({
+           load_page_url: "{% url 'admin:outboundrelay_page' %}"
        });
    });
   </script>
@@ -30,4 +30,4 @@
   {% endif %}
 {% endblock %}
 
-{% block actions %}{% domains_menu "domains" user %}{% endblock %}
+{% block actions %}{% outboundrelays_menu "relays" user %}{% endblock %}

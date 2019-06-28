@@ -126,7 +126,7 @@ Domains.prototype = {
     initialize: function(options) {
         Admin.prototype.initialize.call(this, options);
         this.options.navigation_params.push("domfilter", "srvfilter");
-        this.options.eor_message = gettext("No more domain to show");
+        this.options.eor_message = gettext("No more domains to show");
         this.register_tag_handler("dom");
         this.register_tag_handler("srv", this.srv_tag_handler);
     },
@@ -171,7 +171,7 @@ Domains.prototype = {
 
         if (this.navobj.getbaseurl() === "list") {
             args.objtype = "domain";
-            this.options.eor_message = gettext("No more domain to show");
+            this.options.eor_message = gettext("No more domains to show");
         } else {
             args.objtype = "quota";
             this.options.eor_message = gettext("No more quota to show");

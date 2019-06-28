@@ -30,6 +30,7 @@ get_account_form_instances = django.dispatch.Signal(
 get_domain_form_instances = django.dispatch.Signal(
     providing_args=["user", "domain"])
 # get_domain_tags = django.dispatch.Signal(providing_args=["domain"])
+extra_outboundrelay_menu_entries = django.dispatch.Signal(providing_args=["user"])
 extra_outboundrelay_filters = django.dispatch.Signal()
 extra_outboundrelay_qset_filters = django.dispatch.Signal(
     providing_args=["relayfilter", "extrafilters"])

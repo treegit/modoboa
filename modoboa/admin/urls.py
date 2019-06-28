@@ -40,6 +40,8 @@ urlpatterns += [
     url(r'^outboundrelays/$', outboundrelay_views.outboundrelays, name="outboundrelay_list"),
     url(r'^outboundrelays/list/$', outboundrelay_views._outboundrelays, name="_outboundrelay_list"),
     url(r'^outboundrelays/new/', outboundrelay_views.newoutboundrelay, name="outboundrelay_add"),
+    url(r'^outboundrelays/page/$', outboundrelay_views.get_next_page,
+        name="outboundrelay_page"),
 ]
 
 urlpatterns += [

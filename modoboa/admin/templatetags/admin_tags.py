@@ -156,14 +156,9 @@ def outboundrelays_menu(selection, user, ajax_mode=True):
          "img": "fa fa-user",
          "class": "ajaxnav navigation",
          "url": outboundrelay_list_url},
-        {"name": "quotas",
-         "label": _("List quotas"),
-         "img": "fa fa-hdd-o",
-         "class": "ajaxnav navigation",
-         "url": quota_list_url},
     ]
     if user.has_perm("admin.add_outboundrelay"):
-        extra_entries = signals.extra_domain_menu_entries.send(
+        extra_entries = signals.extra_outboundrelay_menu_entries.send(
             sender="outboundrelays_menu", user=user)
         for entry in extra_entries:
             entries += entry[1]

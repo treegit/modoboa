@@ -163,3 +163,14 @@ def _new_outboundrelay(request, title, action, successmsg,
     }
     return render(request, tplname, ctx)
 
+@login_required
+@user_passes_test(
+    lambda u: u.has_perm("admin.view_outboundrelays") or
+    u.has_perm("admin.add_outboundrelay")
+)
+def get_next_page(request):
+    """Return the next page of the domain or quota list."""
+    if request.GET.get("objtype", "outboundrelay") == "outboundrelay":
+        return _outboundrelays(request)
+    return _outboundrelays(request)
+
